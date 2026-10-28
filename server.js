@@ -64,6 +64,10 @@ app.use((error, _request, response, _next) => {
   response.status(500).send("An unexpected error occurred.");
 });
 
-app.listen(port, () => {
-  console.log(`Lakeside Medical Clinic is running at http://localhost:${port}`);
-});
+if (require.main === module) {
+  app.listen(port, () => {
+    console.log(`Lakeside Medical Clinic is running at http://localhost:${port}`);
+  });
+}
+
+module.exports = app;
