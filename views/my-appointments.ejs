@@ -1,0 +1,49 @@
+<%- include("partials/header") %>
+    <main>
+      <section class="appointments-section">
+        <div class="container">
+          <div class="appointments-card">
+            <span class="eyebrow">Your patient account</span>
+            <h1>My Appointments</h1>
+            <p>Appointments booked with <strong><%= currentUser.email %></strong>.</p>
+
+            <% if (cancelled) { %>
+              <div class="account-success" role="status">Your appointment was cancelled.</div>
+            <% } %>
+
+            <% if (bookings.length === 0) { %>
+              <div class="empty-appointments">
+                <p class="mb-2">You don’t have any appointments yet.</p>
+                <a href="/booking">Book an appointment</a>
+              </div>
+            <% } else { %>
+              <div class="appointment-list">
+                <% bookings.forEach((booking) => { %>
+                  <article class="patient-appointment">
+                    <div class="patient-appointment-header">
+                      <div>
+                        <h2><%= booking.specialty %> with <%= booking.doctor %></h2>
+                        <p class="mb-0"><%= formattedAppointmentDate(booking.appointmentDateTime) %></p>
+                      </div>
+                      <span class="appointment-status <%= booking.status === 'Cancelled' ? 'is-cancelled' : '' %>"><%= booking.status %></span>
+                    </div>
+                    <div class="appointment-details">
+                      <p><strong>Patient:</strong> <%= booking.patientName %></p>
+                      <p><strong>Phone:</strong> <%= booking.patientPhone %></p>
+                      <p><strong>Booked:</strong> <%= booking.createdAt %></p>
+                      <p><strong>Reference:</strong> #<%= booking.id %></p>
+                    </div>
+                    <% if (booking.status === "Booked") { %>
+                      <form action="/my-appointments/<%= booking.id %>/cancel" method="post">
+                        <button class="btn btn-outline-danger appointment-cancel" type="submit">Cancel appointment</button>
+                      </form>
+                    <% } %>
+                  </article>
+                <% }) %>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </section>
+    </main>
+<%- include("partials/footer") %>

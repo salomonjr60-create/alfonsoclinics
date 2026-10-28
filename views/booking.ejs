@@ -1,0 +1,207 @@
+<%- include("partials/header") %>
+    <main>
+      <section class="booking-section">
+        <div class="container">
+          <div class="booking-card">
+            <% if (confirmed) { %>
+              <span class="booking-success-icon"><i class="bi bi-check-lg" aria-hidden="true"></i></span>
+              <span class="eyebrow">Appointment confirmed</span>
+              <h1>Your appointment is booked</h1>
+              <p class="booking-intro">Your booking has been saved. Here are your appointment details.</p>
+            <% } else { %>
+              <span class="eyebrow">Your visit, your way</span>
+              <h1>Book an appointment</h1>
+              <p class="booking-intro">Choose a specialty, doctor, and a time that works for you.</p>
+            <% } %>
+
+            <% if (!confirmed) { %>
+              <div class="booking-progress" aria-label="Booking progress">
+                <% ["Specialty", "Doctor", "Date & time", "Your details"].forEach((label, index) => { %>
+                  <div class="booking-progress-step <%= index + 1 <= step ? (index + 1 === step ? 'is-active' : 'is-complete') : '' %>">
+                    <%= index + 1 %>. <%= label %>
+                  </div>
+                <% }) %>
+              </div>
+            <% } %>
+
+            <% if (Object.keys(errors).length) { %>
+              <div class="booking-error" role="alert">
+                <ul class="mb-0">
+                  <% Object.values(errors).forEach((error) => { %>
+                    <li><%= error %></li>
+                  <% }) %>
+                </ul>
+              </div>
+            <% } %>
+
+            <% if (step === 1 && !confirmed) { %>
+              <form action="/booking" method="post">
+                <input type="hidden" name="step" value="1">
+                <fieldset class="booking-fieldset">
+                  <legend>1. Choose a specialty</legend>
+                  <% specialties.forEach((specialty) => { %>
+                    <label class="booking-option">
+                      <input type="radio" name="specialty" value="<%= specialty %>" required <%= booking.specialty === specialty ? "checked" : "" %>>
+                      <span><strong><%= specialty %></strong></span>
+                    </label>
+                  <% }) %>
+                </fieldset>
+                <div class="booking-actions justify-content-end">
+                  <button class="btn btn-primary" type="submit">Continue <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i></button>
+                </div>
+              </form>
+            <% } else if (step === 2 && !confirmed) { %>
+              <form action="/booking" method="post">
+                <input type="hidden" name="step" value="2">
+                <input type="hidden" name="specialty" value="<%= booking.specialty %>">
+                <fieldset class="booking-fieldset">
+                  <legend>2. Choose your doctor</legend>
+                  <label class="booking-option">
+                    <input type="radio" name="doctor" value="<%= doctor %>" required <%= booking.doctor === doctor ? "checked" : "" %>>
+                    <span><strong><%= doctor %></strong><small><%= booking.specialty %></small></span>
+                  </label>
+                </fieldset>
+                <div class="booking-actions">
+                  <button class="btn btn-outline-secondary" type="submit" name="action" value="back"><i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Back</button>
+                  <button class="btn btn-primary" type="submit">Continue <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i></button>
+                </div>
+              </form>
+            <% } else if (step === 3 && !confirmed) { %>
+              <form action="/booking" method="post">
+                <input type="hidden" name="step" value="3">
+                <input type="hidden" name="specialty" value="<%= booking.specialty %>">
+                <input type="hidden" name="doctor" value="<%= booking.doctor %>">
+                <fieldset class="booking-fieldset">
+                  <legend>3. Choose a date and time</legend>
+                  <div class="mb-3">
+                    <label class="form-label booking-form-label" for="appointmentDate">Appointment date</label>
+                    <input class="form-control booking-form-control" id="appointmentDate" name="date" type="date" min="<%= minimumDate %>" value="<%= booking.date %>" required>
+                    <div class="form-text">Monday to Saturday. The clinic is closed on Sundays.</div>
+                  </div>
+                  <div>
+                    <label class="form-label booking-form-label" for="appointmentTime">Available time</label>
+                    <select class="form-select booking-form-control" id="appointmentTime" name="time" required>
+                      <option value="">Choose a time</option>
+                      <% timeSlots.forEach((slot) => { %>
+                        <option value="<%= slot.value %>" <%= booking.time === slot.value ? "selected" : "" %> <%= slot.disabled ? "disabled" : "" %>><%= slot.label %></option>
+                      <% }) %>
+                    </select>
+                    <div class="form-text">Appointments are 30 minutes, from 9:00 AM to 8:30 PM.</div>
+                  </div>
+                </fieldset>
+                <div class="booking-actions">
+                  <button class="btn btn-outline-secondary" type="submit" name="action" value="back"><i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Back</button>
+                  <button class="btn btn-primary" type="submit">Continue <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i></button>
+                </div>
+              </form>
+            <% } else if (step === 4 && !confirmed) { %>
+              <form action="/booking" method="post">
+                <input type="hidden" name="step" value="4">
+                <input type="hidden" name="specialty" value="<%= booking.specialty %>">
+                <input type="hidden" name="doctor" value="<%= booking.doctor %>">
+                <input type="hidden" name="date" value="<%= booking.date %>">
+                <input type="hidden" name="time" value="<%= booking.time %>">
+                <fieldset class="booking-fieldset">
+                  <legend>4. Your details</legend>
+                  <div class="mb-3">
+                    <label class="form-label booking-form-label" for="patientName">Patient name</label>
+                    <input class="form-control booking-form-control" id="patientName" name="patientName" type="text" autocomplete="name" minlength="2" maxlength="100" value="<%= booking.patientName %>" required>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label booking-form-label" for="patientPhone">Phone number</label>
+                    <input class="form-control booking-form-control" id="patientPhone" name="patientPhone" type="tel" autocomplete="tel" maxlength="20" value="<%= booking.patientPhone %>" required>
+                  </div>
+                  <div>
+                    <label class="form-label booking-form-label" for="patientEmail">Email address</label>
+                    <input class="form-control booking-form-control" id="patientEmail" name="patientEmail" type="email" autocomplete="email" maxlength="254" value="<%= booking.patientEmail %>" <%= currentUser ? "readonly" : "" %> required>
+                    <% if (currentUser) { %>
+                      <div class="form-text">Your account email will be used for this booking.</div>
+                    <% } %>
+                  </div>
+                </fieldset>
+                <div class="booking-actions">
+                  <button class="btn btn-outline-secondary" type="submit" name="action" value="back"><i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Back</button>
+                  <button class="btn btn-primary" type="submit">Review booking <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i></button>
+                </div>
+              </form>
+            <% } else if (step === 5) { %>
+              <div class="booking-summary" aria-label="Booking summary">
+                <% if (confirmed && savedBooking) { %>
+                  <div class="booking-summary-row"><strong>Booking reference</strong><span>#<%= savedBooking.id %></span></div>
+                  <div class="booking-summary-row"><strong>Status</strong><span><%= savedBooking.status %></span></div>
+                <% } %>
+                <div class="booking-summary-row"><strong>Specialty</strong><span><%= booking.specialty %></span></div>
+                <div class="booking-summary-row"><strong>Doctor</strong><span><%= booking.doctor %></span></div>
+                <div class="booking-summary-row"><strong>Date</strong><span><%= formattedDate %></span></div>
+                <div class="booking-summary-row"><strong>Time</strong><span><%= formattedTime %></span></div>
+                <div class="booking-summary-row"><strong>Patient</strong><span><%= booking.patientName %></span></div>
+                <div class="booking-summary-row"><strong>Phone</strong><span><%= booking.patientPhone %></span></div>
+                <div class="booking-summary-row"><strong>Email</strong><span><%= booking.patientEmail %></span></div>
+              </div>
+
+              <% if (confirmed) { %>
+                <div class="booking-notice" role="status">Your appointment is confirmed. Please keep your booking reference for your records.</div>
+                <div class="booking-actions justify-content-end">
+                  <a class="btn btn-primary" href="/">Return to home</a>
+                </div>
+              <% } else { %>
+                <p>Please review your details. Continuing opens secure Stripe Checkout to pay the refundable AED 100 consultation deposit.</p>
+                <form action="/booking" method="post">
+                  <input type="hidden" name="step" value="5">
+                  <input type="hidden" name="specialty" value="<%= booking.specialty %>">
+                  <input type="hidden" name="doctor" value="<%= booking.doctor %>">
+                  <input type="hidden" name="date" value="<%= booking.date %>">
+                  <input type="hidden" name="time" value="<%= booking.time %>">
+                  <input type="hidden" name="patientName" value="<%= booking.patientName %>">
+                  <input type="hidden" name="patientPhone" value="<%= booking.patientPhone %>">
+                  <input type="hidden" name="patientEmail" value="<%= booking.patientEmail %>">
+                  <div class="booking-actions">
+                    <button class="btn btn-outline-secondary" type="submit" name="action" value="back"><i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Back</button>
+                    <button class="btn btn-primary" type="submit" name="action" value="confirm">Confirm booking <i class="bi bi-check-lg ms-1" aria-hidden="true"></i></button>
+                  </div>
+                </form>
+              <% } %>
+            <% } %>
+          </div>
+        </div>
+      </section>
+    </main>
+    <% if (step === 3 && !confirmed) { %>
+      <script>
+        const appointmentDate = document.getElementById("appointmentDate");
+        const appointmentTime = document.getElementById("appointmentTime");
+
+        function updateAppointmentAvailability() {
+          const selectedDate = appointmentDate.value;
+          const isSunday = selectedDate && new Date(`${selectedDate}T12:00:00.000Z`).getUTCDay() === 0;
+          appointmentDate.setCustomValidity(isSunday ? "The clinic is closed on Sundays. Choose another date." : "");
+
+          const parts = new Intl.DateTimeFormat("en-GB", {
+            timeZone: "Asia/Dubai",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            hourCycle: "h23",
+          }).formatToParts(new Date());
+          const now = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+          const today = `${now.year}-${now.month}-${now.day}`;
+          const nowMinutes = Number(now.hour) * 60 + Number(now.minute);
+          let selectedSlotIsUnavailable = false;
+
+          for (const option of appointmentTime.options) {
+            if (!option.value) continue;
+            const [hour, minute] = option.value.split(":").map(Number);
+            option.disabled = selectedDate === today && hour * 60 + minute <= nowMinutes;
+            if (option.selected && option.disabled) selectedSlotIsUnavailable = true;
+          }
+
+          if (selectedSlotIsUnavailable) appointmentTime.value = "";
+        }
+
+        appointmentDate.addEventListener("change", updateAppointmentAvailability);
+        updateAppointmentAvailability();
+      </script>
+    <% } %>
+<%- include("partials/footer") %>

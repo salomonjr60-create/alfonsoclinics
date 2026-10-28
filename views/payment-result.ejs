@@ -1,0 +1,55 @@
+<%- include("partials/header") %>
+    <main>
+      <section class="booking-section">
+        <div class="container">
+          <div class="booking-card">
+            <% if (state === "paid") { %>
+              <span class="booking-success-icon"><i class="bi bi-check-lg" aria-hidden="true"></i></span>
+              <span class="eyebrow">Payment received</span>
+              <h1>Appointment confirmed</h1>
+              <p class="booking-intro">Your refundable AED 100 consultation deposit has been paid and your appointment is booked.</p>
+            <% } else if (state === "pending") { %>
+              <span class="eyebrow">Payment not completed</span>
+              <h1>Your appointment is still pending</h1>
+              <p class="booking-intro"><%= message %></p>
+            <% } else if (state === "unavailable") { %>
+              <span class="eyebrow">Payment unavailable</span>
+              <h1>We couldn't start checkout</h1>
+              <p class="booking-intro"><%= message %></p>
+            <% } else if (state === "unverified") { %>
+              <span class="eyebrow">Payment verification needed</span>
+              <h1>We couldn't verify payment</h1>
+              <p class="booking-intro"><%= message %></p>
+            <% } else if (state === "cancelled") { %>
+              <span class="eyebrow">Appointment cancelled</span>
+              <h1>Please contact the clinic</h1>
+              <p class="booking-intro"><%= message %></p>
+            <% } else { %>
+              <span class="eyebrow">Booking details</span>
+              <h1>Payment session not found</h1>
+              <p class="booking-intro"><%= message %></p>
+            <% } %>
+
+            <% if (appointment) { %>
+              <div class="booking-summary" aria-label="Appointment details">
+                <div class="booking-summary-row"><strong>Booking reference</strong><span>#<%= appointment.id %></span></div>
+                <div class="booking-summary-row"><strong>Status</strong><span><%= appointment.status %></span></div>
+                <div class="booking-summary-row"><strong>Specialty</strong><span><%= appointment.specialty %></span></div>
+                <div class="booking-summary-row"><strong>Doctor</strong><span><%= appointment.doctor %></span></div>
+                <div class="booking-summary-row"><strong>Date and time</strong><span><%= formattedDateTime %></span></div>
+                <div class="booking-summary-row"><strong>Patient</strong><span><%= appointment.patientName %></span></div>
+              </div>
+            <% } %>
+
+            <div class="booking-actions justify-content-end">
+              <% if (state === "pending" || state === "unavailable" || state === "unverified") { %>
+                <a class="btn btn-outline-secondary" href="/booking">Return to booking</a>
+              <% } else { %>
+                <a class="btn btn-primary" href="/">Return to home</a>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+<%- include("partials/footer") %>

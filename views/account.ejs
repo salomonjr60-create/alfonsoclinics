@@ -1,0 +1,40 @@
+<%- include("partials/header") %>
+    <main>
+      <section class="auth-section">
+        <div class="container">
+          <div class="auth-card">
+            <span class="eyebrow"><%= mode === "register" ? "Create your patient account" : "Welcome back" %></span>
+            <h1><%= mode === "register" ? "Register" : "Login" %></h1>
+            <p class="auth-intro"><%= mode === "register" ? "Use your account to keep track of your appointments." : "Log in to view and manage your appointments." %></p>
+
+            <% if (error) { %>
+              <div class="account-error" role="alert"><%= error %></div>
+            <% } %>
+
+            <form action="/<%= mode %>" method="post">
+              <div class="mb-3">
+                <label class="form-label account-form-label" for="email">Email address</label>
+                <input class="form-control account-form-control" id="email" name="email" type="email" autocomplete="email" maxlength="254" value="<%= email %>" required>
+              </div>
+              <div class="mb-4">
+                <label class="form-label account-form-label" for="password">Password</label>
+                <input class="form-control account-form-control" id="password" name="password" type="password" autocomplete="<%= mode === 'register' ? 'new-password' : 'current-password' %>" minlength="<%= mode === 'register' ? 8 : 1 %>" maxlength="72" required>
+                <% if (mode === "register") { %>
+                  <div class="form-text">Use at least 8 characters. Passwords are stored securely as hashes.</div>
+                <% } %>
+              </div>
+              <button class="btn btn-primary auth-submit" type="submit"><%= mode === "register" ? "Create account" : "Login" %></button>
+            </form>
+
+            <p class="auth-switch">
+              <% if (mode === "register") { %>
+                Already have an account? <a href="/login">Login</a>
+              <% } else { %>
+                New to the clinic? <a href="/register">Register</a>
+              <% } %>
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+<%- include("partials/footer") %>
